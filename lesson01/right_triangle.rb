@@ -22,7 +22,7 @@ b = gets.chomp.to_f
 puts "Введите сторону C:"
 c = gets.chomp.to_f
 
-sides = [a, b, c].reverse
+sides = [a, b, c].sort.reverse
 
 if sides[0]**2 == sides[1]**2 + sides[2]**2
   puts "Треугольник прямоугольный"

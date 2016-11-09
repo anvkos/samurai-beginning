@@ -22,13 +22,16 @@ c = gets.chomp.to_f
 
 discriminant = b**2 - 4 * a * c
 
+puts "Дискриминант:#{discriminant}."
+
 if discriminant > 0
-  x1 = (-b + Math.sqrt(discriminant))/ (2 * a)
-  x2 = (-b - Math.sqrt(discriminant))/ (2 * a)
-  puts "Дискриминант:#{discriminant}. Корни x1:#{x1} x2:#{x2}."
+  sqrt_discriminant = Math.sqrt(discriminant)
+  x1 = (-b + sqrt_discriminant)/ (2 * a)
+  x2 = (-b - sqrt_discriminant)/ (2 * a)
+  puts "Корни x1:#{x1} x2:#{x2}."
 elsif discriminant == 0
   x = -b / (2 * a)
-  puts "Дискриминант:#{discriminant}. Корень x:#{x}."
+  puts "Корень x:#{x}."
 else
-  puts "Дискриминант:#{discriminant}. Корней нет."
+  puts "Корней нет."
 end
