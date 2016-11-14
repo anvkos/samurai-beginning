@@ -15,19 +15,19 @@
 =end
 
 class Train
-  TYPES = {
-    cargo: 'cargo',
-    passenger: 'passenger'
-  }
+  TYPES = [
+    :cargo,
+    :passenger
+  ]
 
   attr_reader :number, :type, :carriages, :speed, :carriages
   attr_writer :route
 
-  def initialize(number = 0, type = 'passenger', carriages = 0)
-    @number = number.to_i
-    @type = type.to_s
-    @carriages = carriages.to_i
-    @speed = 0
+  def initialize(number = 0, type = :passenger, carriages = 0)
+    @number = number
+    @type = type
+    @carriages = carriages
+    @speed = 0.0
     @current_station = 0
   end
 

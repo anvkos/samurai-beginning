@@ -21,19 +21,13 @@ class Station
   end
 
   def send(train)
-    trains.delete_if { |t| train == t }
+    trains.delete(train)
   end
 
-  def count_trains
-    counter = {
-      passenger: 0,
-      cargo: 0
-    }
-    self.trains.each do |train|
-      counter[:passenger] += 1 if train.type == Train::TYPES[:passenger]
-      counter[:cargo] += 1     if train.type == Train::TYPES[:cargo]
-    end
-    counter
+  def count_trains(type)
+    self.trains.select { |train|
+      train.type == type
+    }.count
   end
 
   def to_s
