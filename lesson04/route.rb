@@ -17,7 +17,7 @@ class Route
   end
 
   def add_station(station)
-    self.stations.insert(-2, station)
+    self.stations.insert(-2, station) if intermediary?(station)
   end
 
   def delete_station(station)

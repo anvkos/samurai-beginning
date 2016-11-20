@@ -43,7 +43,7 @@ class Train
   end
 
   def detach(carriage)
-    @carriage.delete(carriage) if self.speed.zero?
+    @carriages.delete(carriage) if self.speed.zero?
   end
 
   def current_station
