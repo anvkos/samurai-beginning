@@ -15,7 +15,6 @@ class RailWayControl
 
   def execute
     loop do
-
       puts <<-MENU
 
       ######### MENU ##########
@@ -60,6 +59,8 @@ class RailWayControl
       end
     end
   end
+
+private
 
 def placed_station
     puts '[ Place in the station ]'

@@ -25,9 +25,9 @@ class Station
   end
 
   def count_trains(type)
-    self.trains.select { |train|
+    self.trains.select do |train|
       train.type == type
-    }.count
+    end.count
   end
 
   def to_s
