@@ -10,7 +10,7 @@ class Train
     :passenger
   ]
 
-  @@trains = []
+  @@trains = {}
 
   attr_reader :number, :type, :carriages, :speed, :carriages
   attr_writer :route
@@ -21,7 +21,7 @@ class Train
     @carriages = []
     @speed = 0.0
     @current_station = 0
-    @@trains.push(self)
+    @@trains.store(number, self)
     register_instance
   end
 
@@ -66,7 +66,7 @@ class Train
   end
 
   def self.find(number)
-    @@trains.select { |train| train.number == number }.first
+    @@trains[number]
   end
 
   protected

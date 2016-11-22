@@ -6,11 +6,11 @@ class Station
   def initialize(name)
     @name = name
     @trains = []
-    @@stations.push(self)
+    @@stations << self
   end
 
   def accept(train)
-    trains.push(train)
+    trains << train
   end
 
   def send(train)
