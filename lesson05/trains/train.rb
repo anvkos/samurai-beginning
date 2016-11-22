@@ -1,8 +1,16 @@
+require_relative '../modules/vendor'
+require_relative '../modules/instance_counter'
+
 class Train
+  include Vendor
+  include InstanceCounter
+
   TYPES = [
     :cargo,
     :passenger
   ]
+
+  @@trains = []
 
   attr_reader :number, :type, :carriages, :speed, :carriages
   attr_writer :route
@@ -13,6 +21,8 @@ class Train
     @carriages = []
     @speed = 0.0
     @current_station = 0
+    @@trains.push(self)
+    register_instance
   end
 
   def up_speed(speed)
@@ -53,6 +63,10 @@ class Train
 
   def to_s
     "number: #{self.number}, type: #{self.type}, carriages: #{self.carriages.count}"
+  end
+
+  def self.find(number)
+    @@trains.select { |train| train.number == number }.first
   end
 
   protected

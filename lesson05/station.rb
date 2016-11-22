@@ -1,9 +1,12 @@
 class Station
+  @@stations = []
+
   attr_reader :name, :trains
 
   def initialize(name)
     @name = name
     @trains = []
+    @@stations.push(self)
   end
 
   def accept(train)
@@ -22,5 +25,9 @@ class Station
 
   def to_s
     name
+  end
+
+  def self.all
+    @@stations
   end
 end

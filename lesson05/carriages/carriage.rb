@@ -1,4 +1,6 @@
 class Carriage
+  include Vendor
+
   TYPES = [
     :cargo,
     :passenger
