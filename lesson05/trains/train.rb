@@ -1,8 +1,10 @@
 require_relative '../modules/vendor'
+require_relative '../modules/validatable'
 require_relative '../modules/instance_counter'
 
 class Train
   include Vendor
+  include Validatable
   include InstanceCounter
 
   TYPES = [
@@ -10,14 +12,23 @@ class Train
     :passenger
   ]
 
+  NUMBER_FORMAT = /^([a-z]|\d){3}-?([a-z]{2}|\d{2})$/i
+
   @@trains = {}
 
   attr_reader :number, :type, :carriages, :speed, :carriages
   attr_writer :route
 
+  class << self
+    def find(number)
+      @@trains[number]
+    end
+  end
+
   def initialize(number = 0, type = :passenger)
     @number = number
     @type = type
+    validate!
     @carriages = []
     @speed = 0.0
     @current_station = 0
@@ -65,11 +76,13 @@ class Train
     "number: #{self.number}, type: #{self.type}, carriages: #{self.carriages.count}"
   end
 
-  def self.find(number)
-    @@trains[number]
-  end
-
   protected
+
+  def validate!
+    raise ArgumentError, 'Number must be of the form xxx-xx' if NUMBER_FORMAT !~ @number.to_s
+    raise ArgumentError, "Type must be one of the :#{TYPES.join(', :')}" unless TYPES.include?(@type)
+    true
+  end
 
   def attach_allowed?(carriage)
     self.speed.zero? && self.type == carriage.type

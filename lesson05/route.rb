@@ -1,10 +1,14 @@
 require_relative 'station'
+require_relative 'modules/validatable'
 
 class Route
+  include Validatable
+
   attr_reader :stations
 
   def initialize(starting, ending)
     @stations = [starting, ending]
+    validate!
   end
 
   def add_station(station)
@@ -21,5 +25,12 @@ class Route
 
   def intermediary?(station)
     station != self.stations.first && station != self.stations.last
+  end
+
+  def validate!
+    stations.each do |station|
+      raise ArgumentError, 'Stations must be instances of Station class' unless station.is_a?(Station)
+    end
+    true
   end
 end

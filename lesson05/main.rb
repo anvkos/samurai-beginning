@@ -37,25 +37,36 @@ class RailWayControl
       menu_item = gets.chomp.to_i
       case menu_item
       when 1
+        puts "[ List stations. ]"
         print_stations
       when 2
+        puts '[ Creating station. ]'
         create_station
+        puts "Created station: #{@stations.last}"
       when 3
+        puts '[ Trains at the station ]'
         print_trains_at_station
       when 4
+        puts '[ List of trains. ]'
         print_trains
       when 5
+        puts '[ Creating train. ]'
         create_train
+        puts "Created train: #{@trains.last}"
       when 6
         attach_carriage
       when 7
         detach_carriage
       when 8
+        puts '[ Place in the station ]'
         placed_station
       when 9
+        puts '[ List routes. ]'
         print_routes
       when 10
+        puts '[ Creating route. ]'
         create_route
+        puts "Created route: #{info_route(@routes.last)}"
       end
     end
   end
@@ -63,7 +74,6 @@ class RailWayControl
 private
 
 def placed_station
-    puts '[ Place in the station ]'
     print_stations
     puts 'Enter number station:'
     station = gets.chomp
@@ -79,7 +89,6 @@ def placed_station
   end
 
   def print_trains_at_station
-    puts '[ Trains at the station ]'
     print_stations
     puts 'Enter number station:'
     station = gets.chomp
@@ -93,31 +102,30 @@ def placed_station
   end
 
   def create_train
-    puts '[ Creating train. ]'
     number = number_train
-    return if number.nil?
-
-    types = Train::TYPES.map.with_index { |type, i| "[#{i + 1}] - #{type.to_s}" }.join(', ')
-    puts "Enter type train. #{types}:"
-    type = gets.chomp.to_i
-    type = Train::TYPES[type - 1]
-    return if type.nil?
-
-    train = CargoTrain.new(number) if type == :cargo
-    train = PassengerTrain.new(number) if type == :passenger
-    @trains.push(train)
-
+    type = type_train
+    train = Train.new(number, type)
+    @trains << train
     puts "How many carriages attach?:"
     amount = gets.chomp
     return if amount.empty? || amount.to_i.zero?
     attach_many_carriages(train, amount.to_i)
+  rescue ArgumentError => e
+    puts "[ERROR] #{e.message}!"
+    retry
+    train
   end
 
   def number_train
     puts "Enter number train:"
     number = gets.chomp
-    return nil if number.empty? || number.to_i.zero?
-    number.to_i
+  end
+
+  def type_train
+    types = Train::TYPES.map.with_index { |type, i| "[#{i + 1}] - #{type.to_s}" }.join(', ')
+    puts "Enter type train. #{types}:"
+    type = gets.chomp.to_i
+    type = Train::TYPES[type - 1]
   end
 
   def find_train
@@ -149,7 +157,6 @@ def placed_station
   end
 
   def print_trains
-    puts '[ List of trains. ]'
     if @trains.empty?
       puts 'List trains empty.'
       return
@@ -162,16 +169,18 @@ def placed_station
       puts 'List stations empty.'
       return
     end
-    puts "[ List stations. ]"
     @stations.each_with_index { |station, i| puts "#{i + 1} - #{station.name}" }
   end
 
   def create_station
-    puts '[ Creating station. ]'
     puts 'Enter name station:'
     name = gets.chomp
-    return if name.empty?
-    @stations.push(Station.new(name))
+    station = Station.new(name)
+    @stations << station
+  rescue ArgumentError => e
+    puts "[ERROR] #{e.message}!"
+    retry
+    station
   end
 
   def print_routes
@@ -179,7 +188,6 @@ def placed_station
       puts 'List routes empty.'
       return
     end
-    puts '[ List routes. ]'
     @routes.each_with_index { |route, i|  puts "#{i + 1} - #{info_route(route)}" }
   end
 
@@ -189,7 +197,6 @@ def placed_station
   end
 
   def create_route
-    puts '[ Creating route. ]'
     puts "Enter name starting station:"
     staring_name = gets.chomp
     starting_station = find_or_create_station(staring_name)
@@ -197,23 +204,34 @@ def placed_station
     ending_name = gets.chomp
     ending_station = find_or_create_station(ending_name)
     route = Route.new(starting_station, ending_station)
-    @routes.push(route)
+    @routes << route
+    add_intermediate_stations(route)
+  rescue ArgumentError => e
+    puts "[ERROR] #{e.message}!"
+    retry
+    route
+  end
+
+  def add_intermediate_stations(route)
     puts 'Enter the name of the intermediate stations, separated by commas:'
     name_stations = gets.chomp
     return if name_stations.empty?
     index = @routes.index(route)
     stations = create_many_stations(name_stations)
     add_many_stations(@routes[index], stations)
+  rescue ArgumentError => e
+    puts "[ERROR] #{e.message}!"
+    retry
   end
 
   def create_many_stations(names)
-    names = names.split(',').map { |n| n.strip! }
+    names = names.split(',').map { |n| n.strip }
     stations = @stations.select { |station| names.include?(station.name) }
     new_names = names - stations.map { |station| station.name }
     new_names.each do |name|
       station = Station.new(name)
-      @stations.push(station)
-      stations.push(station)
+      @stations << station
+      stations << station
     end
     stations
   end
@@ -230,7 +248,7 @@ def placed_station
     station = find_station_by_name(name)
     if station.nil?
       station = Station.new(name)
-      @stations.push(station)
+      @stations << station
     end
     station
   end

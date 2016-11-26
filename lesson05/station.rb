@@ -3,8 +3,15 @@ class Station
 
   attr_reader :name, :trains
 
+  class << self
+    def all
+      @@stations
+    end
+  end
+
   def initialize(name)
     @name = name
+    validate!
     @trains = []
     @@stations << self
   end
@@ -27,7 +34,11 @@ class Station
     name
   end
 
-  def self.all
-    @@stations
+  private
+
+  def validate!
+    raise ArgumentError, 'Name can not be empty' if @name.nil? || @name.to_s.empty?
+    raise ArgumentError, 'Name should be at least 3 symbols' if @name.to_s.length < 3
+    true
   end
 end
