@@ -16,7 +16,7 @@ class Train
 
   @@trains = {}
 
-  attr_reader :number, :type, :carriages, :speed, :carriages
+  attr_reader :number, :type, :speed
   attr_writer :route
 
   class << self
@@ -42,6 +42,14 @@ class Train
 
   def stop
     @speed = 0
+  end
+
+  def carriages(&block)
+    if block_given?
+      @carriages.each { |carriage| yield(carriage) }
+    else
+      @carriages
+    end
   end
 
   def attach(carriage)

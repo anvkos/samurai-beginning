@@ -28,9 +28,11 @@ class RailWayControl
         [6] - Add carriage to train
         [7] - Detach carriage to train
         [8] - Place on a train station
+        [9] - List of carriage in train
+        [10] - Occupied seat or fill volume in carriage
       Routes:
-        [9] - List of routes
-        [10] - Create route
+        [15] - List of routes
+        [16] - Create route
       #########################
       MENU
       puts 'Enter number action:'
@@ -61,9 +63,16 @@ class RailWayControl
         puts '[ Place in the station ]'
         placed_station
       when 9
+        puts '[ List carriage in the train ]'
+        print_carriages_train
+      when 10
+        puts '[ Occupied seat or fill volume in carriage the train]'
+        print_trains
+        fill_carriage_train
+      when 15
         puts '[ List routes. ]'
         print_routes
-      when 10
+      when 16
         puts '[ Creating route. ]'
         create_route
         puts "Created route: #{info_route(@routes.last)}"
@@ -72,6 +81,71 @@ class RailWayControl
   end
 
 private
+
+def fill_carriage_train
+  train = find_train
+  return if train.nil?
+  list_carriages_train(train)
+  number = number_carriage(train)
+  return if number.nil?
+  carriage = train.carriages[number.to_i - 1]
+  if train.type == :cargo
+    carriage = fill_volume_carriage(carriage)
+  elsif train.type == :passenger
+    carriage = occupied_seat_carriage(carriage)
+  end
+  index = @trains.index(train)
+  @trains[index].carriages[number.to_i - 1] = carriage
+end
+
+def number_carriage(train)
+  puts 'Enter number carriage:'
+  number = gets.chomp
+  return if number.nil?
+  raise RuntimeError, 'Wrong number carriage!' if train.carriages[number.to_i - 1].nil?
+  number
+rescue RuntimeError => e
+  puts e.message
+  retry
+end
+
+def occupied_seat_carriage(carriage)
+  carriage.occupy_seat
+  puts "Occupied seat."
+  carriage
+rescue RuntimeError => e
+  pust "[ERROR] #{e.message}"
+end
+
+def fill_volume_carriage(carriage)
+  puts "Enter volume:"
+  volume = gets.chomp
+  return carriage if volume.nil?
+  carriage.fill_volume(volume.to_f)
+  puts "Filled #{volume}."
+  carriage
+rescue RuntimeError => e
+  puts "[ERROR] #{e.message}"
+  retry
+end
+
+def print_carriages_train
+  train = find_train
+  return if train.nil?
+  list_carriages_train(train)
+end
+
+def list_carriages_train(train)
+  i = 0
+  train.carriages do |car|
+    i += 1
+    if car.type == :passenger
+      puts "#{i} #{car.type}, seats - free #{car.free_seats}, occupied: #{car.occupied_seats}"
+    elsif car.type == :cargo
+      puts "#{i} #{car.type}, volume - available: #{car.available_volume}, filled: #{car.filled_volume}"
+    end
+  end
+end
 
 def placed_station
     print_stations

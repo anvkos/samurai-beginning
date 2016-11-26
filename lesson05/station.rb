@@ -1,7 +1,7 @@
 class Station
   @@stations = []
 
-  attr_reader :name, :trains
+  attr_reader :name
 
   class << self
     def all
@@ -14,6 +14,14 @@ class Station
     validate!
     @trains = []
     @@stations << self
+  end
+
+  def trains(&block)
+    if block_given?
+      @trains.each { |train | yield(train) }
+    else
+      @trains
+    end
   end
 
   def accept(train)
