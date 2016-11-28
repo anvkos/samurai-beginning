@@ -16,9 +16,9 @@ class Station
     @@stations << self
   end
 
-  def trains(&block)
+  def trains(&_block)
     if block_given?
-      @trains.each { |train | yield(train) }
+      @trains.each { |train| yield(train) }
     else
       @trains
     end
@@ -33,9 +33,9 @@ class Station
   end
 
   def count_trains(type)
-    self.trains.select do |train|
+    trains.select do |train|
       train.type == type
-    end.count
+    end.size
   end
 
   def to_s

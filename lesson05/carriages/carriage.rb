@@ -8,13 +8,14 @@ class Carriage
   TYPES = [
     :cargo,
     :passenger
-  ]
+  ].freeze
 
   attr_reader :type
 
-  def initialize(type = :passenger)
+  def initialize(type = :passenger, options = {})
     @type = type
     validate!
+    @vendor = options[:vendor]
   end
 
   protected

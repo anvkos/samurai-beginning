@@ -12,19 +12,17 @@ class Route
   end
 
   def add_station(station)
-    self.stations.insert(-2, station) if intermediary?(station)
+    stations.insert(-2, station) if intermediary?(station)
   end
 
   def delete_station(station)
-    if intermediary?(station)
-      self.stations.delete_if { |s| station == s }
-    end
+    stations.delete_if { |s| station == s } if intermediary?(station)
   end
 
   private
 
   def intermediary?(station)
-    station != self.stations.first && station != self.stations.last
+    station != stations.first && station != stations.last
   end
 
   def validate!

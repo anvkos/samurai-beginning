@@ -10,7 +10,7 @@ class Train
   TYPES = [
     :cargo,
     :passenger
-  ]
+  ].freeze
 
   NUMBER_FORMAT = /^([a-z]|\d){3}-?([a-z]{2}|\d{2})$/i
 
@@ -25,13 +25,14 @@ class Train
     end
   end
 
-  def initialize(number = 0, type = :passenger)
+  def initialize(number = 0, type = :passenger, options = {})
     @number = number
     @type = type
     validate!
     @carriages = []
     @speed = 0.0
-    @current_station = 0
+    @current_station = options[:current_station] ||= 0
+    @vendor = options[:vendor]
     @@trains.store(number, self)
     register_instance
   end
@@ -44,7 +45,7 @@ class Train
     @speed = 0
   end
 
-  def carriages(&block)
+  def carriages(&_block)
     if block_given?
       @carriages.each { |carriage| yield(carriage) }
     else
@@ -57,7 +58,7 @@ class Train
   end
 
   def detach(carriage)
-    @carriages.delete(carriage) if self.speed.zero?
+    @carriages.delete(carriage) if speed.zero?
   end
 
   def current_station
@@ -81,7 +82,7 @@ class Train
   end
 
   def to_s
-    "number: #{self.number}, type: #{self.type}, carriages: #{self.carriages.count}"
+    "number: #{number}, type: #{type}, carriages: #{carriages.count}"
   end
 
   protected
@@ -93,7 +94,7 @@ class Train
   end
 
   def attach_allowed?(carriage)
-    self.speed.zero? && self.type == carriage.type
+    speed.zero? && type == carriage.type
   end
 
   def next_station_exist?
