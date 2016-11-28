@@ -6,7 +6,7 @@ require_relative 'trains/cargo_train'
 require_relative 'trains/passenger_train'
 
 class RailWayControl
-  def initialize()
+  def initialize
     @stations = []
     @trains = []
     @routes = []
@@ -39,7 +39,7 @@ class RailWayControl
       menu_item = gets.chomp.to_i
       case menu_item
       when 1
-        puts "[ List stations. ]"
+        puts '[ List stations. ]'
         print_stations
       when 2
         puts '[ Creating station. ]'
@@ -80,81 +80,82 @@ class RailWayControl
     end
   end
 
-private
+  private
 
-def fill_carriage_train
-  train = find_train
-  return if train.nil?
-  list_carriages_train(train)
-  number = number_carriage(train)
-  return if number.nil?
-  carriage = train.carriages[number.to_i - 1]
-  if train.type == :cargo
-    carriage = fill_volume_carriage(carriage)
-  elsif train.type == :passenger
-    carriage = occupied_seat_carriage(carriage)
+  def fill_carriage_train
+    train = find_train
+    return if train.nil?
+    list_carriages_train(train)
+    number = number_carriage(train)
+    return if number.nil?
+    carriage = train.carriages[number.to_i - 1]
+    carriage =
+      if train.type == :cargo
+        fill_volume_carriage(carriage)
+      elsif train.type == :passenger
+        occupied_seat_carriage(carriage)
+      end
+    index = @trains.index(train)
+    @trains[index].carriages[number.to_i - 1] = carriage
   end
-  index = @trains.index(train)
-  @trains[index].carriages[number.to_i - 1] = carriage
-end
 
-def number_carriage(train)
-  puts 'Enter number carriage:'
-  number = gets.chomp
-  return if number.nil?
-  raise RuntimeError, 'Wrong number carriage!' if train.carriages[number.to_i - 1].nil?
-  number
-rescue RuntimeError => e
-  puts e.message
-  retry
-end
+  def number_carriage(train)
+    puts 'Enter number carriage:'
+    number = gets.chomp
+    return if number.nil?
+    raise 'Wrong number carriage!' if train.carriages[number.to_i - 1].nil?
+    number
+  rescue RuntimeError => e
+    puts e.message
+    retry
+  end
 
-def occupied_seat_carriage(carriage)
-  carriage.occupy_seat
-  puts "Occupied seat."
-  carriage
-rescue RuntimeError => e
-  pust "[ERROR] #{e.message}"
-end
+  def occupied_seat_carriage(carriage)
+    carriage.occupy_seat
+    puts 'Occupied seat.'
+    carriage
+  rescue RuntimeError => e
+    pust "[ERROR] #{e.message}"
+  end
 
-def fill_volume_carriage(carriage)
-  puts "Enter volume:"
-  volume = gets.chomp
-  return carriage if volume.nil?
-  carriage.fill_volume(volume.to_f)
-  puts "Filled #{volume}."
-  carriage
-rescue RuntimeError => e
-  puts "[ERROR] #{e.message}"
-  retry
-end
+  def fill_volume_carriage(carriage)
+    puts 'Enter volume:'
+    volume = gets.chomp
+    return carriage if volume.nil?
+    carriage.fill_volume(volume.to_f)
+    puts "Filled #{volume}."
+    carriage
+  rescue RuntimeError => e
+    puts "[ERROR] #{e.message}"
+    retry
+  end
 
-def print_carriages_train
-  train = find_train
-  return if train.nil?
-  list_carriages_train(train)
-end
+  def print_carriages_train
+    train = find_train
+    return if train.nil?
+    list_carriages_train(train)
+  end
 
-def list_carriages_train(train)
-  i = 0
-  train.carriages do |car|
-    i += 1
-    if car.type == :passenger
-      puts "#{i} #{car.type}, seats - free #{car.free_seats}, occupied: #{car.occupied_seats}"
-    elsif car.type == :cargo
-      puts "#{i} #{car.type}, volume - available: #{car.available_volume}, filled: #{car.filled_volume}"
+  def list_carriages_train(train)
+    i = 0
+    train.carriages do |car|
+      i += 1
+      if car.type == :passenger
+        puts "#{i} #{car.type}, seats - free #{car.free_seats}, occupied: #{car.occupied_seats}"
+      elsif car.type == :cargo
+        puts "#{i} #{car.type}, volume - available: #{car.available_volume}, filled: #{car.filled_volume}"
+      end
     end
   end
-end
 
-def placed_station
+  def placed_station
     print_stations
     puts 'Enter number station:'
-    station = gets.chomp
-    return if station.empty? || station.to_i.zero?
-    index_station = station.to_i - 1
-    @stations.fetch(index_station) do |i|
-      puts "Station by number #{i + 1} not found "
+    number_station = gets.chomp
+    return if number_station.empty? || number_station.to_i.zero?
+    index_station = number_station.to_i - 1
+    unless station_exist?(index_station)
+      puts "Station by number #{number_station} not found "
       return
     end
     train = find_train
@@ -165,14 +166,19 @@ def placed_station
   def print_trains_at_station
     print_stations
     puts 'Enter number station:'
-    station = gets.chomp
-    return if station.empty? || station.to_i.zero?
-    index_station = station.to_i - 1
-    @stations.fetch(index_station) do |i|
-      puts "Station by number #{i + 1} not found "
+    number_station = gets.chomp
+    return if number_station.empty? || number_station.to_i.zero?
+    index_station = number_station.to_i - 1
+    unless station_exist?(index_station)
+      puts "Station by number #{number_station} not found "
       return
     end
     puts @stations[index_station].trains
+  end
+
+  def station_exist?(index)
+    return true if @stations.fetch(index)
+    false
   end
 
   def create_train
@@ -180,31 +186,31 @@ def placed_station
     type = type_train
     train = Train.new(number, type)
     @trains << train
-    puts "How many carriages attach?:"
+    puts 'How many carriages attach?:'
     amount = gets.chomp
     return if amount.empty? || amount.to_i.zero?
     attach_many_carriages(train, amount.to_i)
+    train
   rescue ArgumentError => e
     puts "[ERROR] #{e.message}!"
     retry
-    train
   end
 
   def number_train
-    puts "Enter number train:"
-    number = gets.chomp
+    puts 'Enter number train:'
+    gets.chomp
   end
 
   def type_train
-    types = Train::TYPES.map.with_index { |type, i| "[#{i + 1}] - #{type.to_s}" }.join(', ')
+    types = Train::TYPES.map.with_index { |type, i| "[#{i + 1}] - #{type}" }.join(', ')
     puts "Enter type train. #{types}:"
     type = gets.chomp.to_i
-    type = Train::TYPES[type - 1]
+    Train::TYPES[type - 1]
   end
 
   def find_train
     number = number_train
-    @trains.select {|train| train.number == number }.first
+    @trains.detect { |train| train.number == number }
   end
 
   def attach_carriage
@@ -251,10 +257,10 @@ def placed_station
     name = gets.chomp
     station = Station.new(name)
     @stations << station
+    station
   rescue ArgumentError => e
     puts "[ERROR] #{e.message}!"
     retry
-    station
   end
 
   def print_routes
@@ -262,28 +268,28 @@ def placed_station
       puts 'List routes empty.'
       return
     end
-    @routes.each_with_index { |route, i|  puts "#{i + 1} - #{info_route(route)}" }
+    @routes.each_with_index { |route, i| puts "#{i + 1} - #{info_route(route)}" }
   end
 
   def info_route(route)
-    stations = route.stations.map { |station| station.name }.join(', ')
+    stations = route.stations.map(&:name).join(', ')
     "#{route.stations.first.name} to #{route.stations.last.name}: #{stations}"
   end
 
   def create_route
-    puts "Enter name starting station:"
+    puts 'Enter name starting station:'
     staring_name = gets.chomp
     starting_station = find_or_create_station(staring_name)
-    puts "Enter name ending station:"
+    puts 'Enter name ending station:'
     ending_name = gets.chomp
     ending_station = find_or_create_station(ending_name)
     route = Route.new(starting_station, ending_station)
     @routes << route
     add_intermediate_stations(route)
+    route
   rescue ArgumentError => e
     puts "[ERROR] #{e.message}!"
     retry
-    route
   end
 
   def add_intermediate_stations(route)
@@ -299,9 +305,9 @@ def placed_station
   end
 
   def create_many_stations(names)
-    names = names.split(',').map { |n| n.strip }
+    names = names.split(',').map(&:strip)
     stations = @stations.select { |station| names.include?(station.name) }
-    new_names = names - stations.map { |station| station.name }
+    new_names = names - stations.map(&:name)
     new_names.each do |name|
       station = Station.new(name)
       @stations << station
