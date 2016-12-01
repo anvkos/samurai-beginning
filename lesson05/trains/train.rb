@@ -1,10 +1,13 @@
 require_relative '../modules/vendor'
-require_relative '../modules/validatable'
+require_relative '../modules/validation'
+require_relative '../modules/accessors'
 require_relative '../modules/instance_counter'
+require_relative '../route'
 
 class Train
   include Vendor
-  include Validatable
+  extend Accessors
+  include Validation
   include InstanceCounter
 
   TYPES = [
@@ -17,7 +20,9 @@ class Train
   @@trains = {}
 
   attr_reader :number, :type, :speed
-  attr_writer :route
+  strong_attr_acessor route: Route
+
+  validate :number, :format, NUMBER_FORMAT
 
   class << self
     def find(number)
@@ -25,7 +30,7 @@ class Train
     end
   end
 
-  def initialize(number = 0, type = :passenger, options = {})
+  def initialize(number, type = :passenger, options = {})
     @number = number
     @type = type
     validate!
@@ -88,7 +93,7 @@ class Train
   protected
 
   def validate!
-    raise ArgumentError, 'Number must be of the form xxx-xx' if NUMBER_FORMAT !~ @number.to_s
+    super
     raise ArgumentError, "Type must be one of the :#{TYPES.join(', :')}" unless TYPES.include?(@type)
     true
   end

@@ -1,7 +1,14 @@
+require_relative 'modules/validation.rb'
+
 class Station
+  include Validation
+
   @@stations = []
 
   attr_reader :name
+
+  validate :name, :presence
+  validate :name, :min_length, 3
 
   class << self
     def all
@@ -28,7 +35,7 @@ class Station
     trains << train
   end
 
-  def send(train)
+  def send_to(train)
     trains.delete(train)
   end
 
@@ -40,13 +47,5 @@ class Station
 
   def to_s
     name
-  end
-
-  private
-
-  def validate!
-    raise ArgumentError, 'Name can not be empty' if @name.nil? || @name.to_s.empty?
-    raise ArgumentError, 'Name should be at least 3 symbols' if @name.to_s.length < 3
-    true
   end
 end

@@ -1,9 +1,9 @@
 require_relative '../modules/vendor.rb'
-require_relative '../modules/validatable.rb'
+require_relative '../modules/validation.rb'
 
 class Carriage
   include Vendor
-  include Validatable
+  include Validation
 
   TYPES = [
     :cargo,
@@ -11,6 +11,8 @@ class Carriage
   ].freeze
 
   attr_reader :type
+
+  validate :type, :presence
 
   def initialize(type = :passenger, options = {})
     @type = type
