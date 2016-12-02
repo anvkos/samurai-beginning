@@ -8,12 +8,14 @@ module Validation
     attr_reader :validation_attributes
 
     def validate(*args)
+      attr_name = args[0]
       validation = {
         type: args[1],
         options: args[2..-1]
       }
       self.validation_attributes ||= {}
-      self.validation_attributes.store(args[0], validation)
+      self.validation_attributes[attr_name] ||= []
+      self.validation_attributes[attr_name] << validation
     end
 
     protected
@@ -31,10 +33,10 @@ module Validation
 
     def validate!
       validation_attributes = self.class.validation_attributes
-      validation_attributes.each do |attribute, validation|
+      validation_attributes.each do |attribute, validations|
         attr = "@#{attribute}"
         value = instance_variable_get(attr)
-        send(validation[:type], attr, value, validation[:options])
+        validations.each { |validation| send(validation[:type], attr, value, validation[:options]) }
       end
     end
 
@@ -62,7 +64,7 @@ module Validation
 
     def min_length(attr, value, options)
       min = options.first
-      raise ArgumentError, "Attribute #{attr}: should be at least #{min_length} symbols" if value.to_s.length < min
+      raise ArgumentError, "Attribute #{attr}: should be at least #{min} symbols" if value.to_s.length < min
     end
   end
 end

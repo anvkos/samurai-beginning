@@ -23,6 +23,7 @@ class Carriage
   protected
 
   def validate!
+    super
     raise ArgumentError, "Type must be one of the :#{TYPES.join(', :')}" unless TYPES.include?(@type)
     true
   end
